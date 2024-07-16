@@ -1,0 +1,6 @@
+C:/Geant4/geant4-v11.2.1-install/share/Geant4/examples/basic/B4/B4a/out/build/x64-Debug/CMakeFiles/exampleB4a.dir
+C:/Geant4/geant4-v11.2.1-install/share/Geant4/examples/basic/B4/B4a/out/build/x64-Debug/CMakeFiles/edit_cache.dir
+C:/Geant4/geant4-v11.2.1-install/share/Geant4/examples/basic/B4/B4a/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
+C:/Geant4/geant4-v11.2.1-install/share/Geant4/examples/basic/B4/B4a/out/build/x64-Debug/CMakeFiles/list_install_components.dir
+C:/Geant4/geant4-v11.2.1-install/share/Geant4/examples/basic/B4/B4a/out/build/x64-Debug/CMakeFiles/install.dir
+C:/Geant4/geant4-v11.2.1-install/share/Geant4/examples/basic/B4/B4a/out/build/x64-Debug/CMakeFiles/install/local.dir
