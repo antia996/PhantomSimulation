@@ -35,8 +35,8 @@
 #include "G4Box.hh"
 #include "G4Tubs.hh" //Este lo he puesto yo
 #include "G4LogicalVolume.hh"
-#include "G4RotationMatrix.hh" //Este lo he a馻dido yo
-#include "G4Transform3D.hh" //Este lo he a馻dido yo
+#include "G4RotationMatrix.hh" //Este lo he a帽adido yo
+#include "G4Transform3D.hh" //Este lo he a帽adido yo
 #include "G4PVPlacement.hh"
 #include "G4PVReplica.hh"
 #include "G4GlobalMagFieldMessenger.hh"
@@ -114,14 +114,14 @@ void DetectorConstruction::DefineMaterials()
 
   //Definir PLA 
   density = 1.24 * g / cm3;
-  G4Material* PLA = new G4Material("PLA", density, 3); // 3 es el n鷐ero de elementos en el compuesto 
+  G4Material* PLA = new G4Material("PLA", density, 3); // 3 es el n煤mero de elementos en el compuesto 
 
-  PLA->AddElement(C, 3); // Proporci髇 de 醫omos de carbono en el PLA 
-  PLA->AddElement(H, 4); // Proporci髇 de 醫omos de hidr骻eno en el PLA 
-  PLA->AddElement(O, 2); // Proporci髇 de 醫omos de ox韌eno en el PLA
+  PLA->AddElement(C, 3); // Proporci贸n de 谩tomos de carbono en el PLA 
+  PLA->AddElement(H, 4); // Proporci贸n de 谩tomos de hidr贸geno en el PLA 
+  PLA->AddElement(O, 2); // Proporci贸n de 谩tomos de ox铆geno en el PLA
 
 
-  //Definir TEFL覰
+  //Definir TEFL脫N
   density = 2.2 * g / cm3;
   G4Material* teflon = new G4Material("teflon", density, 2);
   teflon->AddElement(C, 2);
@@ -195,7 +195,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
 
 
-  /*
+  
   //Defino bloque de polietileno de 5 cm de espesor
   G4double pol_hx = 6. * cm;
   G4double pol_hy = 6. * cm;
@@ -274,9 +274,87 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
 
 
+  //Hay una caja de 20 x 20 cm de polietileno que recubre los vol煤menes del colimador y de la placa moderadora
+
+  G4double pebox_hx = 2.5 * cm;
+  G4double pebox_hy = 6.0 * cm;
+  G4double pebox_hz = 6.77 * cm;
+
+  auto polietilenoBigBox
+      = new G4Box("PolietilenoBigBox",
+          pebox_hx, pebox_hy, pebox_hz);
+
+  auto polietilenoBigLV
+      = new G4LogicalVolume(
+          polietilenoBigBox,
+          polietileno,
+          "PolietilenoBigLV");
+
+  G4double pePos_x = 8.5 * cm;
+  G4double pePos_y = 0.0 * m;
+  G4double pePos_z = -28 * cm;
 
 
-      */
+  auto polietilenoBigPV
+      = new G4PVPlacement(0,                       // no rotation
+          G4ThreeVector(pePos_x, pePos_y, pePos_z),
+          // translation position
+          polietilenoBigLV,              // its logical volume
+          "PolietilenoBigPV",               // its name
+          worldLog,                // its mother (logical) volume
+          false,                   // no boolean operations
+          0);                      // its copy number
+
+  
+  //Creo una caja para el otro lateral
+  G4double innerBox_hx = 2.5 * cm;
+  G4double innerBox_hy = 6.0 * cm;
+  G4double innerBox_hz = 6.77 * cm;
+
+  auto solidInnerBox = new G4Box("solidInnerBox",
+      innerBox_hx, innerBox_hy, innerBox_hz);
+
+  auto solidInnerBoxLV
+      = new G4LogicalVolume(
+          solidInnerBox,
+          polietileno,
+          "solidInnerBoxLV");
+
+  auto solidInnerBoxPV
+      = new G4PVPlacement(0,
+          G4ThreeVector(-85., 0.0, -280),
+          solidInnerBoxLV,
+          "solidInnerBoxPV",
+          worldLog,
+          false,
+          0);
+
+
+  //Creo una caja para el "techo"
+  G4double upperBox_hx = 11.0 * cm;
+  G4double upperBox_hy = 2.5 * cm;
+  G4double upperBox_hz = 6.77 * cm;
+
+  auto solidUpperBox = new G4Box("solidUpperBox",
+      upperBox_hx, upperBox_hy, upperBox_hz);
+
+  auto solidUpperBoxLV
+      = new G4LogicalVolume(
+          solidUpperBox,
+          polietileno, 
+          "solidUpperBoxLV");
+
+  auto solidUpperBoxPV
+      = new G4PVPlacement(0,
+          G4ThreeVector(0.0, 85.0, -280.0),
+          solidUpperBoxLV,
+          "solidUpperBoxPV",
+          worldLog,
+          false,
+          0);
+  
+
+
 
 
 
@@ -347,15 +425,15 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
   G4double plomoPosX = 0.0 * cm;//+5.0 * cm;
   G4double plomoPosY = 0.0 * cm;
-  G4double plomoPosZ = 0.0;  // Ajustar seg鷑 las dimensiones del plomo y el phantom 
+  G4double plomoPosZ = 0.0;  // Ajustar seg煤n las dimensiones del plomo y el phantom 
 
-  G4PVPlacement* physPlomo = new G4PVPlacement(0,                              // Sin rotaci髇 
-      G4ThreeVector(plomoPosX, plomoPosY, plomoPosZ), // Posici髇 detr醩 del plomo 
-      plomoLV,                      // Volumen l骻ico del phantom 
-      "plomoPV",                    // Nombre del volumen f韘ico del phantom 
+  G4PVPlacement* physPlomo = new G4PVPlacement(0,                              // Sin rotaci贸n 
+      G4ThreeVector(plomoPosX, plomoPosY, plomoPosZ), // Posici贸n detr谩s del plomo 
+      plomoLV,                      // Volumen l贸gico del phantom 
+      "plomoPV",                    // Nombre del volumen f铆sico del phantom 
       worldLog,                       // Volumen madre (world) 
-      false,                          // No usar operaci髇 booleana 
-      0,                              // N鷐ero de copia
+      false,                          // No usar operaci贸n booleana 
+      0,                              // N煤mero de copia
       fCheckOverlaps);                // Chequear superposiciones
 
 
@@ -449,12 +527,12 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
 
 
-  //Creo OTRA CIRCUNFERENCIA DE AIRE M罶 PEQUE袮
+  //Creo OTRA CIRCUNFERENCIA DE AIRE M脕S PEQUE脩A
   G4double smallTubeInnerRadius = 0.0 * cm; // Radio interno
   G4double smallTubeOuterRadius = 0.25 * cm; // Radio externo
   G4double smallTubeHeight = 1.0 * cm;      // Altura
-  G4double smallTubeStartAngle = 0.0 * deg; // 羘gulo inicial
-  G4double smallTubeSpanningAngle = 360.0 * deg; // 羘gulo total (360 grados para un tubo completo)
+  G4double smallTubeStartAngle = 0.0 * deg; // 脕ngulo inicial
+  G4double smallTubeSpanningAngle = 360.0 * deg; // 脕ngulo total (360 grados para un tubo completo)
 
   auto smallTube = new G4Tubs("SmallTube",
       smallTubeInnerRadius,
@@ -464,17 +542,17 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
       smallTubeSpanningAngle);
 
   auto smallTubeLV = new G4LogicalVolume(smallTube,
-      air,  // Cambia "air" por el material que desees para la circunferencia peque馻
+      air,  // Cambia "air" por el material que desees para la circunferencia peque帽a
       "SmallTubeLV");
 
 
 
-  //Creo OTRA CIRCUNFERENCIA M罶 PEQUE袮
+  //Creo OTRA CIRCUNFERENCIA M脕S PEQUE脩A
   G4double smallerTubeInnerRadius = 0.0 * cm; // Radio interno
   G4double smallerTubeOuterRadius = 0.125 * cm; // Radio externo
   G4double smallerTubeHeight = 1.0 * cm;      // Altura
-  G4double smallerTubeStartAngle = 0.0 * deg; // 羘gulo inicial
-  G4double smallerTubeSpanningAngle = 360.0 * deg; // 羘gulo total (360 grados para un tubo completo)
+  G4double smallerTubeStartAngle = 0.0 * deg; // 脕ngulo inicial
+  G4double smallerTubeSpanningAngle = 360.0 * deg; // 脕ngulo total (360 grados para un tubo completo)
 
   auto smallerTube = new G4Tubs("SmallerTube",
       smallerTubeInnerRadius,
@@ -484,37 +562,37 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
       smallerTubeSpanningAngle);
 
   auto smallerTubeLV = new G4LogicalVolume(smallTube,
-      air,  // Cambia "air" por el material que desees para la circunferencia peque馻
+      air,  // Cambia "air" por el material que desees para la circunferencia peque帽a
       "SmallerTubeLV");
 
 
 
-  // Posici髇 del phantom detr醩 del plomo
+  // Posici贸n del phantom detr谩s del plomo
   G4double phantomPosX = +5.0 * cm; 
   G4double phantomPosY = 0.0 * cm; 
-  G4double phantomPosZ = (plomo_hz + phantom_hz);  // Ajustar seg鷑 las dimensiones del plomo y el phantom 
+  G4double phantomPosZ = (plomo_hz + phantom_hz);  // Ajustar seg煤n las dimensiones del plomo y el phantom 
 
-  // Crear la operaci髇 booleana de sustracci髇: PLA - AirTube
-  G4SubtractionSolid* solidPhantomWithHole = new G4SubtractionSolid("PhantomWithHole", // Nombre del nuevo s髄ido
-      phantomBox,        // S髄ido inicial del phantom (PLA)
-      AirTube,      // S髄ido a sustraer (cilindro de aire)
-      0,                 // Rotaci髇 relativa
-      G4ThreeVector(0, 17.00, 0)); // Traslaci髇 relativa
+  // Crear la operaci贸n booleana de sustracci贸n: PLA - AirTube
+  G4SubtractionSolid* solidPhantomWithHole = new G4SubtractionSolid("PhantomWithHole", // Nombre del nuevo s贸lido
+      phantomBox,        // S贸lido inicial del phantom (PLA)
+      AirTube,      // S贸lido a sustraer (cilindro de aire)
+      0,                 // Rotaci贸n relativa
+      G4ThreeVector(0, 17.00, 0)); // Traslaci贸n relativa
 
-  // Actualizar el volumen l骻ico del phantom con el nuevo s髄ido resultante
+  // Actualizar el volumen l贸gico del phantom con el nuevo s贸lido resultante
   phantomLV->SetSolid(solidPhantomWithHole);
   phantomLV->SetName("PhantomWithHoleLV");
   phantomLV->SetMaterial(PLA); 
 
-  // Colocar el phantom modificado detr醩 del plomo
+  // Colocar el phantom modificado detr谩s del plomo
   /*
-  G4PVPlacement* physPhantom = new G4PVPlacement(0,                             // Sin rotaci髇
-      G4ThreeVector(phantomPosX, phantomPosY, phantomPosZ), // Posici髇 detr醩 del plomo
-      phantomLV,                      // Volumen l骻ico del phantom
-      "PhantomPV",                    // Nombre del volumen f韘ico del phantom
+  G4PVPlacement* physPhantom = new G4PVPlacement(0,                             // Sin rotaci贸n
+      G4ThreeVector(phantomPosX, phantomPosY, phantomPosZ), // Posici贸n detr谩s del plomo
+      phantomLV,                      // Volumen l贸gico del phantom
+      "PhantomPV",                    // Nombre del volumen f铆sico del phantom
       worldLog,                       // Volumen madre (world)
-      false,                          // No usar operaci髇 booleana
-      0,                              // N鷐ero de copia
+      false,                          // No usar operaci贸n booleana
+      0,                              // N煤mero de copia
       fCheckOverlaps);                // Chequear superposiciones
 */
 
@@ -541,13 +619,13 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
   phantomLV->SetMaterial(PLA);
 
 
-  G4PVPlacement* physPhantom = new G4PVPlacement(0,                             // Sin rotaci髇 
-      G4ThreeVector(0, phantomPosY, phantomPosZ), // Posici髇 detr醩 del plomo 
-      phantomLV,                      // Volumen l骻ico del phantom 
-      "PhantomPV",                    // Nombre del volumen f韘ico del phantom 
+  G4PVPlacement* physPhantom = new G4PVPlacement(0,                             // Sin rotaci贸n 
+      G4ThreeVector(0, phantomPosY, phantomPosZ), // Posici贸n detr谩s del plomo 
+      phantomLV,                      // Volumen l贸gico del phantom 
+      "PhantomPV",                    // Nombre del volumen f铆sico del phantom 
       worldLog,                       // Volumen madre (world) 
-      false,                          // No usar operaci髇 booleana 
-      0,                              // N鷐ero de copia
+      false,                          // No usar operaci贸n booleana 
+      0,                              // N煤mero de copia
       fCheckOverlaps);                // Chequear superposiciones
 
 
@@ -555,7 +633,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
 
 
-  //Creo OTRO PHANTOM de TEFL覰:
+  //Creo OTRO PHANTOM de TEFL脫N:
 
   G4double phantom2_hx = 1.5 * cm;
   G4double phantom2_hy = 3.0 * cm;
@@ -571,7 +649,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
           teflon,  // its material
           "Phantom2");         // its name
 
-  //Ahora recortamos unos rect醤gulos de aire:
+  //Ahora recortamos unos rect谩ngulos de aire:
 
   G4double air_hx = 0.5 * cm;
   G4double air_hy = 0.25 * cm;
@@ -602,22 +680,22 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
   G4double phantom2PosX = -3.5 * cm;//+5.0 * cm;
   G4double phantom2PosY = 0.0 * cm;
-  G4double phantom2PosZ = (plomo_hz + phantom2_hz);  // Ajustar seg鷑 las dimensiones del plomo y el phantom 
+  G4double phantom2PosZ = (plomo_hz + phantom2_hz);  // Ajustar seg煤n las dimensiones del plomo y el phantom 
 
-  G4PVPlacement* physPhantom2 = new G4PVPlacement(0,                              // Sin rotaci髇 
-      G4ThreeVector(phantom2PosX, phantom2PosY, phantom2PosZ), // Posici髇 detr醩 del plomo 
-      phantom2LV,                      // Volumen l骻ico del phantom 
-      "phantom2PV",                    // Nombre del volumen f韘ico del phantom 
+  G4PVPlacement* physPhantom2 = new G4PVPlacement(0,                              // Sin rotaci贸n 
+      G4ThreeVector(phantom2PosX, phantom2PosY, phantom2PosZ), // Posici贸n detr谩s del plomo 
+      phantom2LV,                      // Volumen l贸gico del phantom 
+      "phantom2PV",                    // Nombre del volumen f铆sico del phantom 
       worldLog,                       // Volumen madre (world) 
-      false,                          // No usar operaci髇 booleana 
-      0,                              // N鷐ero de copia
+      false,                          // No usar operaci贸n booleana 
+      0,                              // N煤mero de copia
       fCheckOverlaps);                // Chequear superposiciones
 
 
 
 
 
-  //Ahora recortamos OTRO rect醤gulo de aire:
+  //Ahora recortamos OTRO rect谩ngulo de aire:
 
   G4double air2_hx = 0.25 * cm;
   G4double air2_hy = 0.125 * cm;
@@ -650,15 +728,15 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
   G4double phantom3PosX = -3.5 * cm;//+5.0 * cm;
   G4double phantom3PosY = 0.0 * cm;
-  G4double phantom3PosZ = (plomo_hz + phantom2_hz);  // Ajustar seg鷑 las dimensiones del plomo y el phantom 
+  G4double phantom3PosZ = (plomo_hz + phantom2_hz);  // Ajustar seg煤n las dimensiones del plomo y el phantom 
 
-  G4PVPlacement* physPhantom3 = new G4PVPlacement(0,                              // Sin rotaci髇 
-      G4ThreeVector(phantom3PosX, phantom3PosY, phantomPosZ), // Posici髇 detr醩 del plomo 
-      phantom2LV,                      // Volumen l骻ico del phantom 
-      "phantomPV",                    // Nombre del volumen f韘ico del phantom 
+  G4PVPlacement* physPhantom3 = new G4PVPlacement(0,                              // Sin rotaci贸n 
+      G4ThreeVector(phantom3PosX, phantom3PosY, phantomPosZ), // Posici贸n detr谩s del plomo 
+      phantom2LV,                      // Volumen l贸gico del phantom 
+      "phantomPV",                    // Nombre del volumen f铆sico del phantom 
       worldLog,                       // Volumen madre (world) 
-      false,                          // No usar operaci髇 booleana 
-      0,                              // N鷐ero de copia
+      false,                          // No usar operaci贸n booleana 
+      0,                              // N煤mero de copia
       fCheckOverlaps);                // Chequear superposiciones
 
 
@@ -666,7 +744,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
 
 
-  //Ahora recortamos OTRO rect醤gulo de aire:
+  //Ahora recortamos OTRO rect谩ngulo de aire:
 
   G4double air3_hx = 0.125 * cm;
   G4double air3_hy = 0.05 * cm;
@@ -699,15 +777,15 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
   G4double phantom4PosX = -3.5 * cm;//+5.0 * cm;
   G4double phantom4PosY = 0.0 * cm;
-  G4double phantom4PosZ = (plomo_hz + phantom2_hz);  // Ajustar seg鷑 las dimensiones del plomo y el phantom 
+  G4double phantom4PosZ = (plomo_hz + phantom2_hz);  // Ajustar seg煤n las dimensiones del plomo y el phantom 
 
-  G4PVPlacement* physPhantom4 = new G4PVPlacement(0,                              // Sin rotaci髇 
-      G4ThreeVector(phantom4PosX, phantom4PosY, phantom4PosZ), // Posici髇 detr醩 del plomo 
-      phantom2LV,                      // Volumen l骻ico del phantom 
-      "phantomPV",                    // Nombre del volumen f韘ico del phantom 
+  G4PVPlacement* physPhantom4 = new G4PVPlacement(0,                              // Sin rotaci贸n 
+      G4ThreeVector(phantom4PosX, phantom4PosY, phantom4PosZ), // Posici贸n detr谩s del plomo 
+      phantom2LV,                      // Volumen l贸gico del phantom 
+      "phantomPV",                    // Nombre del volumen f铆sico del phantom 
       worldLog,                       // Volumen madre (world) 
-      false,                          // No usar operaci髇 booleana 
-      0,                              // N鷐ero de copia
+      false,                          // No usar operaci贸n booleana 
+      0,                              // N煤mero de copia
       fCheckOverlaps);                // Chequear superposiciones
 
 
@@ -734,7 +812,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
       = new G4LogicalVolume(detectorBox, detectorMaterial, "Detector");
 
 
-  //Coloco el detector justo detr醩 de el cilindro
+  //Coloco el detector justo detr谩s de el cilindro
   G4double detectorPos_x = 0.0 * cm;
   G4double detectorPos_y = 0.0 * cm;
   G4double detectorPos_z = phantom4PosZ+11.0 * cm;
@@ -789,9 +867,27 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
     G4VisAttributes* DetectorVisAtt = new G4VisAttributes(G4Colour(0.0, 1.0, 1.0)); // Azul claritoB
     DetectorVisAtt->SetVisibility(true);
     detectorLog->SetVisAttributes(DetectorVisAtt);
-    
 
+    //"Blindajes" de PE
+    G4VisAttributes* polietilenoBigVisAtt = new G4VisAttributes(G4Colour(1.0, 0.0, 1.0)); // Azul claritoB
+    polietilenoBigVisAtt->SetVisibility(true);
+    polietilenoBigLV->SetVisAttributes(polietilenoBigVisAtt);
 
+    G4VisAttributes* solidInnerBoxVisAtt = new G4VisAttributes(G4Colour(1.0, 0.0, 1.0)); // Azul claritoB
+    solidInnerBoxVisAtt->SetVisibility(true);
+    solidInnerBoxLV->SetVisAttributes(solidInnerBoxVisAtt);
+
+    G4VisAttributes* solidUpperBoxVisAtt = new G4VisAttributes(G4Colour(1.0, 0.0, 1.0)); // Azul claritoB
+    solidUpperBoxVisAtt->SetVisibility(true);
+    solidUpperBoxLV->SetVisAttributes(solidUpperBoxVisAtt);
+
+    G4VisAttributes* polietilenoVisAtt = new G4VisAttributes(G4Colour(1.0, 1.0, 0.0)); // Azul claritoB
+    polietilenoVisAtt->SetVisibility(true);
+    polietilenoLV->SetVisAttributes(polietilenoVisAtt);
+
+    G4VisAttributes* colimadorVisAtt = new G4VisAttributes(G4Colour(1.0, 1.0, 0.0)); // Azul claritoB
+    colimadorVisAtt->SetVisibility(true);
+    colimadorLV->SetVisAttributes(colimadorVisAtt);
 
 
   //
@@ -818,4 +914,6 @@ void DetectorConstruction::ConstructSDandField()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 }
+
+
 
