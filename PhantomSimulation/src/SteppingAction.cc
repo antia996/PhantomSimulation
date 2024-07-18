@@ -52,6 +52,7 @@ SteppingAction::SteppingAction(const DetectorConstruction* detConstruction,
 
 void SteppingAction::UserSteppingAction(const G4Step* step)
 {
+
 // Collect energy and track length step by step
 
   // get volume of the current step
@@ -60,11 +61,13 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   // energy deposit
   auto edep = step->GetTotalEnergyDeposit();
 
+  auto particle = step->GetTrack()->GetDefinition();
+
   G4ThreeVector position = step->GetPostStepPoint()->GetPosition();
 
   // step length
   G4double stepLength = 0.;
-  if ( step->GetTrack()->GetDefinition()->GetPDGCharge() != 0. ) {
+  if ( step->GetTrack()->GetDefinition()->GetPDGCharge() == 0. && particle->GetPDGEncoding() == 2112 ) {
     stepLength = step->GetStepLength();
   }
 
@@ -72,14 +75,16 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
       fEventAction->AddDetector(edep, stepLength);
   }
 
+  if (particle->GetPDGEncoding() == 2112) {
+    if (volume == fDetConstruction->GetDetectorPhys()) {
+          G4double x = step->GetPreStepPoint()->GetPosition().x();
+          G4double y = step->GetPreStepPoint()->GetPosition().y();
 
-  if (volume == fDetConstruction->GetDetectorPhys()) {
-      G4double x = step->GetPreStepPoint()->GetPosition().x();
-      G4double y = step->GetPreStepPoint()->GetPosition().y();
-
-      auto analysisManager = G4AnalysisManager::Instance();
-      analysisManager->FillH2(0, x, y);
+          auto analysisManager = G4AnalysisManager::Instance();
+          analysisManager->FillH2(0, -x, y);
+      }
   }
+  
 }
 
 
