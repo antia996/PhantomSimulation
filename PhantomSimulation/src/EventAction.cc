@@ -54,37 +54,44 @@ void EventAction::BeginOfEventAction(const G4Event* /*event*/)
 
 void EventAction::EndOfEventAction(const G4Event* event)
 {
-    // get analysis manager
-    auto analysisManager = G4AnalysisManager::Instance();
+    G4int nPrimaries = event->GetNumberOfPrimaryVertex();
 
-    
-    // fill histograms
-    analysisManager->FillH1(0, fEnergyDetector);
-    analysisManager->FillH1(1, fTrackLDetector);
+    for (G4int iVertex = 0; iVertex < nPrimaries; ++iVertex) {
+        G4PrimaryVertex* vertex = event->GetPrimaryVertex(iVertex);
+        G4PrimaryParticle* primary = vertex->GetPrimary();
 
-    
+        if (primary->GetPDGcode() == 2112) {
+            auto analysisManager = G4AnalysisManager::Instance();
 
-    // fill ntuple
-    analysisManager->FillNtupleDColumn(0, fEnergyDetector);
-    analysisManager->FillNtupleDColumn(1, fTrackLDetector);
-    analysisManager->AddNtupleRow();
+            // fill histograms
+            analysisManager->FillH1(0, fEnergyDetector); 
+            analysisManager->FillH1(1, fTrackLDetector);
 
-    // Print per event (modulo n)
-    //
-    auto eventID = event->GetEventID();
-    auto printModulo = G4RunManager::GetRunManager()->GetPrintProgress();
-    if ((printModulo > 0) && (eventID % printModulo == 0)) {
-        G4cout
-            << "   Detector: total energy: " << std::setw(7)
-            << G4BestUnit(fEnergyDetector, "Energy")
-            << "       total track length: " << std::setw(7)
-            << G4BestUnit(fTrackLDetector, "Length")
-            << G4endl;
+            // fill ntuple
+            analysisManager->FillNtupleDColumn(0, fEnergyDetector);
+            analysisManager->FillNtupleDColumn(1, fTrackLDetector);
+            analysisManager->AddNtupleRow();
 
-        G4cout << "--> End of event " << eventID << "\n" << G4endl;
+            auto eventID = event->GetEventID();
+            auto printModulo = G4RunManager::GetRunManager()->GetPrintProgress();
+            if ((printModulo > 0) && (eventID % printModulo == 0)) {
+                G4cout
+                    << "   Detector: total energy: " << std::setw(7)
+                    << G4BestUnit(fEnergyDetector, "Energy")
+                    << "       total track length: " << std::setw(7)
+                    << G4BestUnit(fTrackLDetector, "Length")
+                    << G4endl;
+
+                G4cout << "--> End of event " << eventID << "\n" << G4endl;
+            }
+
+
+        }
     }
+    
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
 
 } 
+
